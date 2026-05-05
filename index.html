@@ -3,100 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meus Remédios 💊</title>
+<title>Remédios — Henrique e Emanuela</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --blue: #4A90E2;
-    --green: #5CB85C;
-    --orange: #F5A623;
-    --pink: #E91E8C;
-    --purple: #9B59B6;
-    --text: #2C3E50;
+    --blue: #4A90E2; --green: #5CB85C; --orange: #F5A623;
+    --pink: #E91E8C; --purple: #9B59B6; --text: #2C3E50;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: #FFF9F0; color: var(--text); padding: 16px; }
 
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: #FFF9F0;
-    color: var(--text);
-    padding: 16px;
+  /* ── toolbar ── */
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+    background: white; border-radius: 14px;
+    padding: 12px 18px; margin-bottom: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   }
+  .toolbar-title { font-family: 'Baloo 2', cursive; font-size: 1.2rem; font-weight: 800; color: var(--blue); }
+  .toolbar-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 
+  .btn {
+    border: none; border-radius: 10px; padding: 9px 16px;
+    font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; transition: transform 0.1s, opacity 0.1s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { transform: scale(1.03); opacity: 0.92; }
+  .btn-save  { background: var(--green); color: white; }
+  .btn-share { background: var(--blue);  color: white; }
+  .btn-clear { background: #eee; color: #888; }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #2C3E50; color: white; border-radius: 12px;
+    padding: 11px 22px; font-size: 0.88rem; font-weight: 700;
+    transition: transform 0.3s ease; z-index: 999; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── pages ── */
   .print-page {
-    background: white;
-    border-radius: 16px;
+    background: white; border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-    margin-bottom: 32px;
-    overflow: hidden;
+    margin-bottom: 28px; overflow: hidden;
     border-top: 7px solid var(--blue);
   }
   .print-page.emanuela-page { border-top-color: var(--pink); }
 
   .page-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 18px 8px;
-    border-bottom: 2px dashed #eee;
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 18px 8px; border-bottom: 2px dashed #eee;
   }
   .avatar {
-    width: 48px; height: 48px;
-    border-radius: 50%;
+    width: 48px; height: 48px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.7rem; flex-shrink: 0;
   }
   .henrique-page .avatar { background: #E3F2FD; }
   .emanuela-page .avatar { background: #FCE4EC; }
-
-  .patient-name {
-    font-family: 'Baloo 2', cursive;
-    font-size: 1.3rem;
-    font-weight: 800;
-  }
-  .patient-sub { font-size: 0.72rem; color: #aaa; font-weight: 600; }
+  .patient-name { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800; }
+  .patient-sub  { font-size: 0.72rem; color: #aaa; font-weight: 600; }
   .stars { font-size: 0.9rem; letter-spacing: 3px; margin-top: 2px; }
 
   .meds-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 12px 14px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; padding: 12px 14px;
   }
 
-  .med-card {
-    border-radius: 11px;
-    padding: 10px 12px;
-    border-left: 5px solid;
-  }
+  /* ── cards ── */
+  .med-card { border-radius: 11px; padding: 10px 12px; border-left: 5px solid; }
   .med-card.blue   { border-color: var(--blue);   background: #EAF4FF; }
   .med-card.green  { border-color: var(--green);  background: #EAFAF1; }
   .med-card.orange { border-color: var(--orange); background: #FFF8EE; }
   .med-card.purple { border-color: var(--purple); background: #F5EEFF; }
   .med-card.pink   { border-color: var(--pink);   background: #FDE8F4; }
 
-  .med-name {
-    font-family: 'Baloo 2', cursive;
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
+  .med-name { font-family: 'Baloo 2', cursive; font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
   .med-info { font-size: 0.73rem; color: #555; margin-bottom: 6px; line-height: 1.4; }
   .med-info strong { color: var(--text); }
-
   .fim-tag {
-    display: inline-block;
-    font-size: 0.62rem; font-weight: 700;
-    padding: 1px 6px; border-radius: 8px;
-    background: #FFE0E0; color: #E74C3C;
+    display: inline-block; font-size: 0.62rem; font-weight: 700;
+    padding: 1px 6px; border-radius: 8px; background: #FFE0E0; color: #E74C3C;
   }
 
   .horarios { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; }
   .horario-pill {
-    background: white; border-radius: 20px;
-    padding: 2px 8px; font-size: 0.67rem;
-    font-weight: 700; border: 2px solid; white-space: nowrap;
+    background: white; border-radius: 20px; padding: 2px 8px;
+    font-size: 0.67rem; font-weight: 700; border: 2px solid; white-space: nowrap;
   }
 
   .check-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
@@ -104,22 +100,17 @@
     background: #f0f0f0; padding: 3px 4px;
     text-align: center; font-weight: 700; border: 1px solid #ddd;
   }
-  .check-table td {
-    padding: 3px 4px; text-align: center;
-    border: 1px solid #ddd; font-weight: 600;
-  }
+  .check-table td { padding: 3px 4px; text-align: center; border: 1px solid #ddd; font-weight: 600; }
   .check-table td.day-label {
-    text-align: left; font-weight: 700;
-    background: #fafafa; white-space: nowrap; font-size: 0.62rem;
+    text-align: left; font-weight: 700; background: #fafafa;
+    white-space: nowrap; font-size: 0.62rem;
   }
 
   .check-box {
-    width: 19px; height: 19px;
-    border: 2px solid #ccc; border-radius: 4px;
+    width: 22px; height: 22px; border: 2px solid #ccc; border-radius: 5px;
     display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; background: white;
-    font-size: 12px; font-weight: bold; color: transparent;
-    transition: all 0.15s; user-select: none;
+    cursor: pointer; background: white; font-size: 14px;
+    font-weight: bold; color: transparent; transition: all 0.15s; user-select: none;
   }
   .check-box.checked { background: var(--green); border-color: var(--green); color: white; }
 
@@ -127,9 +118,8 @@
 
   .dip-warn {
     background: #F0FFF4; border: 1.5px dashed var(--green);
-    border-radius: 7px; padding: 6px 8px;
-    font-size: 0.68rem; margin-bottom: 7px;
-    color: #2d7a2d; font-weight: 600; line-height: 1.4;
+    border-radius: 7px; padding: 6px 8px; font-size: 0.68rem;
+    margin-bottom: 7px; color: #2d7a2d; font-weight: 600; line-height: 1.4;
   }
 
   .obs-box {
@@ -140,54 +130,45 @@
   .obs-box ul { padding-left: 14px; }
   .obs-box li { margin-bottom: 3px; color: #555; }
 
-  .screen-tip { text-align: center; font-size: 0.78rem; color: #bbb; margin: 8px 0 18px; }
+  .screen-tip { text-align: center; font-size: 0.75rem; color: #bbb; margin: 6px 0 14px; }
 
-  /* ══ PRINT ══ */
+  /* ── PRINT ── */
   @media print {
     @page { size: A4 landscape; margin: 7mm; }
-
     html, body { background: white !important; padding: 0 !important; margin: 0 !important; }
-    body > .screen-tip { display: none; }
-
+    .toolbar, .screen-tip, .toast { display: none !important; }
     .print-page {
-      box-shadow: none !important;
-      border-radius: 0 !important;
-      /* A4 landscape: 297mm × 210mm, minus 14mm margins = 283mm × 196mm */
-      width: 283mm;
-      height: 196mm;
-      page-break-after: always;
-      break-after: page;
-      margin: 0 !important;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      box-shadow: none !important; border-radius: 0 !important;
+      width: 283mm; height: 196mm;
+      page-break-after: always; break-after: page;
+      margin: 0 !important; overflow: hidden;
+      display: flex; flex-direction: column;
     }
     .print-page:last-child { page-break-after: avoid; break-after: avoid; }
-
     .meds-grid { flex: 1; padding: 7px 10px; gap: 7px; align-content: start; }
     .page-header { padding: 7px 12px 5px; }
-
-    /* force background colors */
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-
     .check-box { width: 16px; height: 16px; border: 2px solid #999 !important; }
     .check-box.checked { background: #5CB85C !important; border-color: #5CB85C !important; color: white !important; }
-
-    .med-name { font-size: 0.77rem; }
-    .med-info { font-size: 0.65rem; }
+    .med-name { font-size: 0.77rem; } .med-info { font-size: 0.65rem; }
     .horario-pill { font-size: 0.6rem; padding: 1px 5px; }
     .check-table { font-size: 0.57rem; }
     .check-table th, .check-table td { padding: 2px 3px; }
-    .check-table td.day-label { font-size: 0.57rem; }
-    .dip-warn { font-size: 0.64rem; padding: 5px 7px; }
-    .obs-box { font-size: 0.65rem; }
-    .obs-box h4 { font-size: 0.78rem; }
   }
 </style>
 </head>
 <body>
 
-<div class="screen-tip">🖨️ Imprimir: <strong>Ctrl+P</strong> (Windows) / <strong>Cmd+P</strong> (Mac) — Paisagem aplicada automaticamente</div>
+<div class="toolbar">
+  <div class="toolbar-title">💊 Remédios — Henrique &amp; Emanuela</div>
+  <div class="toolbar-btns">
+    <button class="btn btn-save"  onclick="salvar()">💾 Salvar</button>
+    <button class="btn btn-share" onclick="compartilhar()">🔗 Compartilhar link</button>
+    <button class="btn btn-clear" onclick="limpar()">🗑️ Limpar tudo</button>
+  </div>
+</div>
+
+<div class="screen-tip">🖨️ Imprimir: <strong>Ctrl+P</strong> / <strong>Cmd+P</strong> — Paisagem aplicada automaticamente</div>
 
 <!-- ══════════ HENRIQUE ══════════ -->
 <div class="print-page henrique-page">
@@ -199,10 +180,8 @@
       <div class="stars">⭐⭐⭐⭐⭐</div>
     </div>
   </div>
-
   <div class="meds-grid">
 
-    <!-- col 1: Amoxicilina -->
     <div class="med-card blue">
       <div class="med-name">🔵 Amoxicilina + Clavulanato</div>
       <div class="med-info"><strong>7ml</strong> · 12/12h · 7 dias &nbsp;<span class="fim-tag">FIM 11/05</span></div>
@@ -212,19 +191,18 @@
       </div>
       <table class="check-table">
         <tr><th>Dia</th><th>20h 🌙</th><th>08h ☀️</th></tr>
-        <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td>—</td></tr>
-        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Sex 08/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Sáb 09/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Dom 10/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Seg 11/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+        <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" data-id="h-amox-04-20" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" data-id="h-amox-05-20" onclick="toggle(this)">✓</div></td><td><div class="check-box checked" data-id="h-amox-05-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" data-id="h-amox-06-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-amox-06-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" data-id="h-amox-07-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-amox-07-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Sex 08/05</td><td><div class="check-box" data-id="h-amox-08-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-amox-08-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Sáb 09/05</td><td><div class="check-box" data-id="h-amox-09-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-amox-09-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Dom 10/05</td><td><div class="check-box" data-id="h-amox-10-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-amox-10-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Seg 11/05 🏁</td><td><div class="check-box" data-id="h-amox-11-20" onclick="toggle(this)">✓</div></td><td>—</td></tr>
       </table>
-      <div class="legend">✅ 1ª dose dada. Próxima: amanhã 08h00</div>
+      <div class="legend">✅ 1ª dose dada. Próxima: 08h00</div>
     </div>
 
-    <!-- col 2: Ibuprofeno -->
     <div class="med-card orange">
       <div class="med-name">🟠 Ibuprofeno 100mg/ml</div>
       <div class="med-info"><strong>21 gotas</strong> · 8/8h · 3 dias &nbsp;<span class="fim-tag">FIM 07/05</span></div>
@@ -235,15 +213,14 @@
       </div>
       <table class="check-table">
         <tr><th>Dia</th><th>08h 🌅</th><th>16h 🌆</th><th>00h 🌙</th></tr>
-        <tr><td class="day-label">Seg 04/05</td><td>—</td><td>—</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Qui 07/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td>—</td><td>—</td></tr>
+        <tr><td class="day-label">Seg 04/05</td><td>—</td><td>—</td><td><div class="check-box checked" data-id="h-ibu-04-00" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box checked" data-id="h-ibu-05-08" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-ibu-05-16" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-ibu-05-00" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" data-id="h-ibu-06-08" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-ibu-06-16" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="h-ibu-06-00" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qui 07/05 🏁</td><td><div class="check-box" data-id="h-ibu-07-08" onclick="toggle(this)">✓</div></td><td>—</td><td>—</td></tr>
       </table>
-      <div class="legend">✅ 1ª dose: 04/05 às 20h. Sequência: 08h → 16h → 00h</div>
+      <div class="legend">✅ Ciclo: 08h → 16h → 00h</div>
     </div>
 
-    <!-- col 3: Dipirona -->
     <div class="med-card green">
       <div class="med-name">🟢 Dipirona gotas</div>
       <div class="med-info"><strong>21 gotas</strong> (ou <strong>10ml xarope</strong>) · 6/6h · só se dor/febre</div>
@@ -273,10 +250,8 @@
       <div class="stars">⭐⭐⭐⭐⭐</div>
     </div>
   </div>
-
   <div class="meds-grid">
 
-    <!-- col 1: Amoxicilina -->
     <div class="med-card pink">
       <div class="med-name">🩷 Amoxicilina 400mg/5ml</div>
       <div class="med-info"><strong>9ml</strong> (ou <strong>14,5ml</strong> c/ 250mg/5ml) · 12/12h · 7 dias &nbsp;<span class="fim-tag">FIM 11/05</span></div>
@@ -286,19 +261,18 @@
       </div>
       <table class="check-table">
         <tr><th>Dia</th><th>20h 🌙</th><th>08h ☀️</th></tr>
-        <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td>—</td></tr>
-        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Sex 08/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Sáb 09/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Dom 10/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-        <tr><td class="day-label">Seg 11/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+        <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" data-id="e-amox-04-20" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" data-id="e-amox-05-20" onclick="toggle(this)">✓</div></td><td><div class="check-box checked" data-id="e-amox-05-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" data-id="e-amox-06-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-amox-06-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" data-id="e-amox-07-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-amox-07-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Sex 08/05</td><td><div class="check-box" data-id="e-amox-08-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-amox-08-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Sáb 09/05</td><td><div class="check-box" data-id="e-amox-09-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-amox-09-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Dom 10/05</td><td><div class="check-box" data-id="e-amox-10-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-amox-10-08" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Seg 11/05 🏁</td><td><div class="check-box" data-id="e-amox-11-20" onclick="toggle(this)">✓</div></td><td>—</td></tr>
       </table>
-      <div class="legend">✅ 1ª dose dada. Próxima: amanhã 08h20</div>
+      <div class="legend">✅ 1ª dose dada. Próxima: 08h20</div>
     </div>
 
-    <!-- col 2: Ibuprofeno + Desloratadina empilhados -->
     <div style="display:flex;flex-direction:column;gap:8px;">
       <div class="med-card orange">
         <div class="med-name">🟠 Ibuprofeno 100mg/ml</div>
@@ -310,10 +284,10 @@
         </div>
         <table class="check-table">
           <tr><th>Dia</th><th>08h 🌅</th><th>16h 🌆</th><th>00h 🌙</th></tr>
-          <tr><td class="day-label">Seg 04/05</td><td>—</td><td>—</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Qui 07/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td>—</td><td>—</td></tr>
+          <tr><td class="day-label">Seg 04/05</td><td>—</td><td>—</td><td><div class="check-box checked" data-id="e-ibu-04-00" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box checked" data-id="e-ibu-05-08" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-ibu-05-16" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-ibu-05-00" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" data-id="e-ibu-06-08" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-ibu-06-16" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-ibu-06-00" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qui 07/05 🏁</td><td><div class="check-box" data-id="e-ibu-07-08" onclick="toggle(this)">✓</div></td><td>—</td><td>—</td></tr>
         </table>
       </div>
 
@@ -325,16 +299,15 @@
         </div>
         <table class="check-table">
           <tr><th>Dia</th><th>20h20 🌙</th></tr>
-          <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Sex 08/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" data-id="e-deslo-04" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" data-id="e-deslo-05" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" data-id="e-deslo-06" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" data-id="e-deslo-07" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Sex 08/05 🏁</td><td><div class="check-box" data-id="e-deslo-08" onclick="toggle(this)">✓</div></td></tr>
         </table>
       </div>
     </div>
 
-    <!-- col 3: Mometasona + Lembretes empilhados -->
     <div style="display:flex;flex-direction:column;gap:8px;">
       <div class="med-card blue">
         <div class="med-name">🔵 Mometasona Spray Nasal</div>
@@ -345,10 +318,10 @@
         </div>
         <table class="check-table">
           <tr><th>Dia</th><th>20h 🌙</th><th>08h ☀️</th></tr>
-          <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td>—</td></tr>
-          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
-          <tr><td class="day-label">Qui 07/05 🏁</td><td>—</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" data-id="e-mom-04-20" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" data-id="e-mom-05-20" onclick="toggle(this)">✓</div></td><td><div class="check-box checked" data-id="e-mom-05-08" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" data-id="e-mom-06-20" onclick="toggle(this)">✓</div></td><td><div class="check-box" data-id="e-mom-06-08" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qui 07/05 🏁</td><td>—</td><td><div class="check-box" data-id="e-mom-07-08" onclick="toggle(this)">✓</div></td></tr>
         </table>
       </div>
 
@@ -359,7 +332,7 @@
           <li>🍽️ Amoxicilina: c/ ou s/ comida</li>
           <li>🌡️ Dipirona só se dor/febre</li>
           <li>🩺 Febre 48h → retornar ao médico</li>
-          <li>✅ Marcados = dose dada em 04/05</li>
+          <li>✅ Marcados = dose já dada</li>
         </ul>
       </div>
     </div>
@@ -367,8 +340,99 @@
   </div>
 </div>
 
+<!-- toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-  function toggle(el) { el.classList.toggle('checked'); }
+const STORAGE_KEY = 'remedios_v1';
+
+// ── coleta IDs marcados ──
+function getEstado() {
+  const checked = [];
+  document.querySelectorAll('.check-box.checked[data-id]').forEach(el => {
+    checked.push(el.dataset.id);
+  });
+  return checked;
+}
+
+// ── aplica lista de IDs ──
+function aplicarEstado(ids) {
+  // zera tudo
+  document.querySelectorAll('.check-box[data-id]').forEach(el => {
+    el.classList.remove('checked');
+    el.style.color = 'transparent';
+  });
+  // marca os salvos
+  ids.forEach(id => {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) { el.classList.add('checked'); el.style.color = 'white'; }
+  });
+}
+
+// ── toggle ──
+function toggle(el) {
+  el.classList.toggle('checked');
+  el.style.color = el.classList.contains('checked') ? 'white' : 'transparent';
+}
+
+// ── salvar no localStorage ──
+function salvar() {
+  const estado = getEstado();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
+  mostrarToast('💾 Salvo no seu dispositivo!');
+}
+
+// ── gerar link compartilhável ──
+function compartilhar() {
+  const estado = getEstado();
+  const encoded = btoa(JSON.stringify(estado));
+  const url = window.location.origin + window.location.pathname + '?s=' + encoded;
+  navigator.clipboard.writeText(url).then(() => {
+    mostrarToast('🔗 Link copiado! Cole no WhatsApp 📲');
+  }).catch(() => {
+    // fallback se clipboard não disponível
+    prompt('Copie este link e envie no WhatsApp:', url);
+  });
+}
+
+// ── limpar ──
+function limpar() {
+  if (!confirm('Limpar todas as marcações?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  document.querySelectorAll('.check-box[data-id]').forEach(el => {
+    el.classList.remove('checked');
+    el.style.color = 'transparent';
+  });
+  history.replaceState(null, '', window.location.pathname);
+  mostrarToast('🗑️ Marcações limpas!');
+}
+
+// ── toast ──
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── ao carregar: URL tem prioridade sobre localStorage ──
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const s = params.get('s');
+  if (s) {
+    try {
+      const ids = JSON.parse(atob(s));
+      aplicarEstado(ids);
+      mostrarToast('📲 Marcações carregadas do link!');
+      return;
+    } catch(e) {}
+  }
+  // senão, carrega localStorage
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try { aplicarEstado(JSON.parse(saved)); } catch(e) {}
+  }
+});
 </script>
 </body>
 </html>
