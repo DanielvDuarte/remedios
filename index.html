@@ -13,6 +13,22 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Nunito', sans-serif; background: #FFF9F0; color: var(--text); padding: 16px; }
 
+  /* ── status bar ── */
+  .status-bar {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.8rem; font-weight: 700;
+    padding: 7px 14px; border-radius: 10px;
+    margin-bottom: 12px; transition: all 0.3s;
+  }
+  .status-bar.conectado  { background: #EAFAF1; color: #27ae60; }
+  .status-bar.sincronizando { background: #FFF8EE; color: #F5A623; }
+  .status-bar.erro       { background: #FDEDEC; color: #E74C3C; }
+  .status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .conectado  .status-dot { background: #27ae60; animation: pulse 2s infinite; }
+  .sincronizando .status-dot { background: #F5A623; }
+  .erro .status-dot { background: #E74C3C; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
   /* ── toolbar ── */
   .toolbar {
     display: flex; align-items: center; justify-content: space-between;
@@ -22,7 +38,7 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   }
   .toolbar-title { font-family: 'Baloo 2', cursive; font-size: 1.2rem; font-weight: 800; color: var(--blue); }
-  .toolbar-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar-btns  { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .btn {
     border: none; border-radius: 10px; padding: 9px 16px;
@@ -31,8 +47,6 @@
     display: flex; align-items: center; gap: 6px;
   }
   .btn:hover { transform: scale(1.03); opacity: 0.92; }
-  .btn-save  { background: var(--green); color: white; }
-  .btn-share { background: var(--blue);  color: white; }
   .btn-clear { background: #eee; color: #888; }
 
   /* toast */
@@ -73,7 +87,6 @@
     gap: 10px; padding: 12px 14px;
   }
 
-  /* ── cards ── */
   .med-card { border-radius: 11px; padding: 10px 12px; border-left: 5px solid; }
   .med-card.blue   { border-color: var(--blue);   background: #EAF4FF; }
   .med-card.green  { border-color: var(--green);  background: #EAFAF1; }
@@ -113,6 +126,7 @@
     font-weight: bold; color: transparent; transition: all 0.15s; user-select: none;
   }
   .check-box.checked { background: var(--green); border-color: var(--green); color: white; }
+  .check-box.saving  { opacity: 0.5; pointer-events: none; }
 
   .legend { font-size: 0.62rem; color: #888; margin-top: 5px; font-style: italic; }
 
@@ -136,7 +150,7 @@
   @media print {
     @page { size: A4 landscape; margin: 7mm; }
     html, body { background: white !important; padding: 0 !important; margin: 0 !important; }
-    .toolbar, .screen-tip, .toast { display: none !important; }
+    .toolbar, .screen-tip, .toast, .status-bar { display: none !important; }
     .print-page {
       box-shadow: none !important; border-radius: 0 !important;
       width: 283mm; height: 196mm;
@@ -159,11 +173,15 @@
 </head>
 <body>
 
+<!-- Status Firebase -->
+<div class="status-bar sincronizando" id="statusBar">
+  <div class="status-dot"></div>
+  <span id="statusMsg">Conectando ao Firebase...</span>
+</div>
+
 <div class="toolbar">
   <div class="toolbar-title">💊 Remédios — Henrique &amp; Emanuela</div>
   <div class="toolbar-btns">
-    <button class="btn btn-save"  onclick="salvar()">💾 Salvar</button>
-    <button class="btn btn-share" onclick="compartilhar()">🔗 Compartilhar link</button>
     <button class="btn btn-clear" onclick="limpar()">🗑️ Limpar tudo</button>
   </div>
 </div>
@@ -238,7 +256,6 @@
 
   </div>
 </div>
-
 
 <!-- ══════════ EMANUELA ══════════ -->
 <div class="print-page emanuela-page">
@@ -332,7 +349,7 @@
           <li>🍽️ Amoxicilina: c/ ou s/ comida</li>
           <li>🌡️ Dipirona só se dor/febre</li>
           <li>🩺 Febre 48h → retornar ao médico</li>
-          <li>✅ Marcados = dose já dada</li>
+          <li>✅ Marcações sincronizadas em tempo real</li>
         </ul>
       </div>
     </div>
@@ -340,99 +357,95 @@
   </div>
 </div>
 
-<!-- toast -->
 <div class="toast" id="toast"></div>
 
-<script>
-const STORAGE_KEY = 'remedios_v1';
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp }             from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-// ── coleta IDs marcados ──
-function getEstado() {
-  const checked = [];
-  document.querySelectorAll('.check-box.checked[data-id]').forEach(el => {
-    checked.push(el.dataset.id);
-  });
-  return checked;
-}
+  // ── Firebase config ──
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCoB-CaPKSrgDeEWOpWFjzxuGEolSKFJ7g",
+    authDomain:        "remedios-criancas-37749.firebaseapp.com",
+    databaseURL:       "https://remedios-criancas-37749-default-rtdb.firebaseio.com",
+    projectId:         "remedios-criancas-37749",
+    storageBucket:     "remedios-criancas-37749.firebasestorage.app",
+    messagingSenderId: "797905898705",
+    appId:             "1:797905898705:web:8a798310d452df051849f0"
+  };
 
-// ── aplica lista de IDs ──
-function aplicarEstado(ids) {
-  // zera tudo
-  document.querySelectorAll('.check-box[data-id]').forEach(el => {
-    el.classList.remove('checked');
-    el.style.color = 'transparent';
-  });
-  // marca os salvos
-  ids.forEach(id => {
-    const el = document.querySelector(`[data-id="${id}"]`);
-    if (el) { el.classList.add('checked'); el.style.color = 'white'; }
-  });
-}
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const ROOT = "doses";
 
-// ── toggle ──
-function toggle(el) {
-  el.classList.toggle('checked');
-  el.style.color = el.classList.contains('checked') ? 'white' : 'transparent';
-}
+  // ── status bar ──
+  const statusBar = document.getElementById('statusBar');
+  const statusMsg = document.getElementById('statusMsg');
 
-// ── salvar no localStorage ──
-function salvar() {
-  const estado = getEstado();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
-  mostrarToast('💾 Salvo no seu dispositivo!');
-}
+  function setStatus(tipo, msg) {
+    statusBar.className = 'status-bar ' + tipo;
+    statusMsg.textContent = msg;
+  }
 
-// ── gerar link compartilhável ──
-function compartilhar() {
-  const estado = getEstado();
-  const encoded = btoa(JSON.stringify(estado));
-  const url = window.location.origin + window.location.pathname + '?s=' + encoded;
-  navigator.clipboard.writeText(url).then(() => {
-    mostrarToast('🔗 Link copiado! Cole no WhatsApp 📲');
-  }).catch(() => {
-    // fallback se clipboard não disponível
-    prompt('Copie este link e envie no WhatsApp:', url);
-  });
-}
+  // ── toast ──
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
 
-// ── limpar ──
-function limpar() {
-  if (!confirm('Limpar todas as marcações?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  document.querySelectorAll('.check-box[data-id]').forEach(el => {
-    el.classList.remove('checked');
-    el.style.color = 'transparent';
-  });
-  history.replaceState(null, '', window.location.pathname);
-  mostrarToast('🗑️ Marcações limpas!');
-}
+  // ── toggle: grava no Firebase ──
+  window.toggle = async function(el) {
+    const id = el.dataset.id;
+    if (!id) return;
+    el.classList.add('saving');
 
-// ── toast ──
-function mostrarToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
+    const novoEstado = !el.classList.contains('checked');
+    const r = ref(db, `${ROOT}/${id}`);
 
-// ── ao carregar: URL tem prioridade sobre localStorage ──
-window.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const s = params.get('s');
-  if (s) {
     try {
-      const ids = JSON.parse(atob(s));
-      aplicarEstado(ids);
-      mostrarToast('📲 Marcações carregadas do link!');
-      return;
-    } catch(e) {}
-  }
-  // senão, carrega localStorage
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try { aplicarEstado(JSON.parse(saved)); } catch(e) {}
-  }
-});
+      if (novoEstado) {
+        await set(r, true);
+      } else {
+        await remove(r);
+      }
+      // a atualização visual vem pelo listener onValue abaixo
+    } catch(e) {
+      setStatus('erro', '❌ Erro ao salvar. Verifique a conexão.');
+      el.classList.remove('saving');
+    }
+  };
+
+  // ── listener em tempo real: atualiza todos os checkboxes ──
+  const rootRef = ref(db, ROOT);
+  onValue(rootRef, (snapshot) => {
+    const data = snapshot.val() || {};
+
+    document.querySelectorAll('.check-box[data-id]').forEach(el => {
+      const id = el.dataset.id;
+      const marcado = !!data[id];
+      el.classList.toggle('checked', marcado);
+      el.style.color = marcado ? 'white' : 'transparent';
+      el.classList.remove('saving');
+    });
+
+    setStatus('conectado', '🔥 Sincronizado em tempo real');
+  }, (error) => {
+    setStatus('erro', '❌ Sem conexão com Firebase');
+  });
+
+  // ── limpar tudo ──
+  window.limpar = async function() {
+    if (!confirm('Limpar TODAS as marcações para os dois?')) return;
+    try {
+      await remove(ref(db, ROOT));
+      toast('🗑️ Todas as marcações foram limpas!');
+    } catch(e) {
+      setStatus('erro', '❌ Erro ao limpar.');
+    }
+  };
 </script>
 </body>
 </html>
