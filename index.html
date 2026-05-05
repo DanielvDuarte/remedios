@@ -128,6 +128,16 @@
   .check-box.checked { background: var(--green); border-color: var(--green); color: white; }
   .check-box.saving  { opacity: 0.5; pointer-events: none; }
 
+  /* dipirona input */
+  .dip-time {
+    border: 1.5px solid #ccc; border-radius: 6px;
+    padding: 2px 4px; font-size: 0.68rem; font-family: 'Nunito', sans-serif;
+    font-weight: 700; color: var(--text); background: white;
+    width: 80px; text-align: center; cursor: pointer;
+  }
+  .dip-time:focus { outline: none; border-color: var(--green); }
+  .dip-time.filled { border-color: var(--green); color: var(--green); background: #F0FFF4; }
+
   .legend { font-size: 0.62rem; color: #888; margin-top: 5px; font-style: italic; }
 
   .dip-warn {
@@ -244,13 +254,43 @@
       <div class="med-info"><strong>21 gotas</strong> (ou <strong>10ml xarope</strong>) · 6/6h · só se dor/febre</div>
       <div class="dip-warn">⚠️ Só dar com febre &gt; 37,8°C ou dor.<br>Máx. a cada 6 horas.</div>
       <table class="check-table">
-        <tr><th>Dose</th><th>Horário</th><th>Motivo</th></tr>
-        <tr><td style="background:#fafafa">1</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
-        <tr><td style="background:#fafafa">2</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
-        <tr><td style="background:#fafafa">3</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
-        <tr><td style="background:#fafafa">4</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
-        <tr><td style="background:#fafafa">5</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
-        <tr><td style="background:#fafafa">6</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
+        <tr><th>#</th><th>Horário</th><th>Dor</th><th>Febre</th></tr>
+        <tr>
+          <td style="background:#fafafa;font-weight:700">1</td>
+          <td><input type="time" class="dip-time" data-dip="h-dip-1-hora" onchange="saveDip(this)"></td>
+          <td><div class="check-box" data-id="h-dip-1-dor" onclick="toggle(this)">✓</div></td>
+          <td><div class="check-box" data-id="h-dip-1-febre" onclick="toggle(this)">✓</div></td>
+        </tr>
+        <tr>
+          <td style="background:#fafafa;font-weight:700">2</td>
+          <td><input type="time" class="dip-time" data-dip="h-dip-2-hora" onchange="saveDip(this)"></td>
+          <td><div class="check-box" data-id="h-dip-2-dor" onclick="toggle(this)">✓</div></td>
+          <td><div class="check-box" data-id="h-dip-2-febre" onclick="toggle(this)">✓</div></td>
+        </tr>
+        <tr>
+          <td style="background:#fafafa;font-weight:700">3</td>
+          <td><input type="time" class="dip-time" data-dip="h-dip-3-hora" onchange="saveDip(this)"></td>
+          <td><div class="check-box" data-id="h-dip-3-dor" onclick="toggle(this)">✓</div></td>
+          <td><div class="check-box" data-id="h-dip-3-febre" onclick="toggle(this)">✓</div></td>
+        </tr>
+        <tr>
+          <td style="background:#fafafa;font-weight:700">4</td>
+          <td><input type="time" class="dip-time" data-dip="h-dip-4-hora" onchange="saveDip(this)"></td>
+          <td><div class="check-box" data-id="h-dip-4-dor" onclick="toggle(this)">✓</div></td>
+          <td><div class="check-box" data-id="h-dip-4-febre" onclick="toggle(this)">✓</div></td>
+        </tr>
+        <tr>
+          <td style="background:#fafafa;font-weight:700">5</td>
+          <td><input type="time" class="dip-time" data-dip="h-dip-5-hora" onchange="saveDip(this)"></td>
+          <td><div class="check-box" data-id="h-dip-5-dor" onclick="toggle(this)">✓</div></td>
+          <td><div class="check-box" data-id="h-dip-5-febre" onclick="toggle(this)">✓</div></td>
+        </tr>
+        <tr>
+          <td style="background:#fafafa;font-weight:700">6</td>
+          <td><input type="time" class="dip-time" data-dip="h-dip-6-hora" onchange="saveDip(this)"></td>
+          <td><div class="check-box" data-id="h-dip-6-dor" onclick="toggle(this)">✓</div></td>
+          <td><div class="check-box" data-id="h-dip-6-febre" onclick="toggle(this)">✓</div></td>
+        </tr>
       </table>
     </div>
 
@@ -396,6 +436,24 @@
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
+  // ── salvar horário da dipirona ──
+  window.saveDip = async function(el) {
+    const id = el.dataset.dip;
+    if (!id) return;
+    const r = ref(db, `${ROOT}/${id}`);
+    try {
+      if (el.value) {
+        await set(r, el.value);
+        el.classList.add('filled');
+      } else {
+        await remove(r);
+        el.classList.remove('filled');
+      }
+    } catch(e) {
+      setStatus('erro', '❌ Erro ao salvar horário.');
+    }
+  };
+
   // ── toggle: grava no Firebase ──
   window.toggle = async function(el) {
     const id = el.dataset.id;
@@ -418,17 +476,26 @@
     }
   };
 
-  // ── listener em tempo real: atualiza todos os checkboxes ──
+  // ── listener em tempo real: atualiza checkboxes e horários dipirona ──
   const rootRef = ref(db, ROOT);
   onValue(rootRef, (snapshot) => {
     const data = snapshot.val() || {};
 
+    // checkboxes
     document.querySelectorAll('.check-box[data-id]').forEach(el => {
       const id = el.dataset.id;
       const marcado = !!data[id];
       el.classList.toggle('checked', marcado);
       el.style.color = marcado ? 'white' : 'transparent';
       el.classList.remove('saving');
+    });
+
+    // horários dipirona
+    document.querySelectorAll('.dip-time[data-dip]').forEach(el => {
+      const id = el.dataset.dip;
+      const val = data[id] || '';
+      el.value = val;
+      el.classList.toggle('filled', !!val);
     });
 
     setStatus('conectado', '🔥 Sincronizado em tempo real');
