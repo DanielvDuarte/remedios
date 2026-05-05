@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meus Remédios 💊</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #4A90E2;
+    --green: #5CB85C;
+    --orange: #F5A623;
+    --pink: #E91E8C;
+    --purple: #9B59B6;
+    --text: #2C3E50;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #FFF9F0;
+    color: var(--text);
+    padding: 16px;
+  }
+
+  .print-page {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    margin-bottom: 32px;
+    overflow: hidden;
+    border-top: 7px solid var(--blue);
+  }
+  .print-page.emanuela-page { border-top-color: var(--pink); }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px 8px;
+    border-bottom: 2px dashed #eee;
+  }
+  .avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.7rem; flex-shrink: 0;
+  }
+  .henrique-page .avatar { background: #E3F2FD; }
+  .emanuela-page .avatar { background: #FCE4EC; }
+
+  .patient-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.3rem;
+    font-weight: 800;
+  }
+  .patient-sub { font-size: 0.72rem; color: #aaa; font-weight: 600; }
+  .stars { font-size: 0.9rem; letter-spacing: 3px; margin-top: 2px; }
+
+  .meds-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .med-card {
+    border-radius: 11px;
+    padding: 10px 12px;
+    border-left: 5px solid;
+  }
+  .med-card.blue   { border-color: var(--blue);   background: #EAF4FF; }
+  .med-card.green  { border-color: var(--green);  background: #EAFAF1; }
+  .med-card.orange { border-color: var(--orange); background: #FFF8EE; }
+  .med-card.purple { border-color: var(--purple); background: #F5EEFF; }
+  .med-card.pink   { border-color: var(--pink);   background: #FDE8F4; }
+
+  .med-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .med-info { font-size: 0.73rem; color: #555; margin-bottom: 6px; line-height: 1.4; }
+  .med-info strong { color: var(--text); }
+
+  .fim-tag {
+    display: inline-block;
+    font-size: 0.62rem; font-weight: 700;
+    padding: 1px 6px; border-radius: 8px;
+    background: #FFE0E0; color: #E74C3C;
+  }
+
+  .horarios { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; }
+  .horario-pill {
+    background: white; border-radius: 20px;
+    padding: 2px 8px; font-size: 0.67rem;
+    font-weight: 700; border: 2px solid; white-space: nowrap;
+  }
+
+  .check-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
+  .check-table th {
+    background: #f0f0f0; padding: 3px 4px;
+    text-align: center; font-weight: 700; border: 1px solid #ddd;
+  }
+  .check-table td {
+    padding: 3px 4px; text-align: center;
+    border: 1px solid #ddd; font-weight: 600;
+  }
+  .check-table td.day-label {
+    text-align: left; font-weight: 700;
+    background: #fafafa; white-space: nowrap; font-size: 0.62rem;
+  }
+
+  .check-box {
+    width: 19px; height: 19px;
+    border: 2px solid #ccc; border-radius: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; background: white;
+    font-size: 12px; font-weight: bold; color: transparent;
+    transition: all 0.15s; user-select: none;
+  }
+  .check-box.checked { background: var(--green); border-color: var(--green); color: white; }
+
+  .legend { font-size: 0.62rem; color: #888; margin-top: 5px; font-style: italic; }
+
+  .dip-warn {
+    background: #F0FFF4; border: 1.5px dashed var(--green);
+    border-radius: 7px; padding: 6px 8px;
+    font-size: 0.68rem; margin-bottom: 7px;
+    color: #2d7a2d; font-weight: 600; line-height: 1.4;
+  }
+
+  .obs-box {
+    background: #FFFDE7; border: 2px dashed #F1C40F;
+    border-radius: 9px; padding: 9px 12px; font-size: 0.72rem;
+  }
+  .obs-box h4 { font-family: 'Baloo 2', cursive; font-size: 0.85rem; margin-bottom: 5px; color: #B7950B; }
+  .obs-box ul { padding-left: 14px; }
+  .obs-box li { margin-bottom: 3px; color: #555; }
+
+  .screen-tip { text-align: center; font-size: 0.78rem; color: #bbb; margin: 8px 0 18px; }
+
+  /* ══ PRINT ══ */
+  @media print {
+    @page { size: A4 landscape; margin: 7mm; }
+
+    html, body { background: white !important; padding: 0 !important; margin: 0 !important; }
+    body > .screen-tip { display: none; }
+
+    .print-page {
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      /* A4 landscape: 297mm × 210mm, minus 14mm margins = 283mm × 196mm */
+      width: 283mm;
+      height: 196mm;
+      page-break-after: always;
+      break-after: page;
+      margin: 0 !important;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .print-page:last-child { page-break-after: avoid; break-after: avoid; }
+
+    .meds-grid { flex: 1; padding: 7px 10px; gap: 7px; align-content: start; }
+    .page-header { padding: 7px 12px 5px; }
+
+    /* force background colors */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+    .check-box { width: 16px; height: 16px; border: 2px solid #999 !important; }
+    .check-box.checked { background: #5CB85C !important; border-color: #5CB85C !important; color: white !important; }
+
+    .med-name { font-size: 0.77rem; }
+    .med-info { font-size: 0.65rem; }
+    .horario-pill { font-size: 0.6rem; padding: 1px 5px; }
+    .check-table { font-size: 0.57rem; }
+    .check-table th, .check-table td { padding: 2px 3px; }
+    .check-table td.day-label { font-size: 0.57rem; }
+    .dip-warn { font-size: 0.64rem; padding: 5px 7px; }
+    .obs-box { font-size: 0.65rem; }
+    .obs-box h4 { font-size: 0.78rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-tip">🖨️ Imprimir: <strong>Ctrl+P</strong> (Windows) / <strong>Cmd+P</strong> (Mac) — Paisagem aplicada automaticamente</div>
+
+<!-- ══════════ HENRIQUE ══════════ -->
+<div class="print-page henrique-page">
+  <div class="page-header">
+    <div class="avatar">🦁</div>
+    <div>
+      <div class="patient-name">Henrique</div>
+      <div class="patient-sub">Início: 20h00 · 04/05/2026 · Dra. Isabella Silvestre CRM-GO 35785</div>
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+    </div>
+  </div>
+
+  <div class="meds-grid">
+
+    <!-- col 1: Amoxicilina -->
+    <div class="med-card blue">
+      <div class="med-name">🔵 Amoxicilina + Clavulanato</div>
+      <div class="med-info"><strong>7ml</strong> · 12/12h · 7 dias &nbsp;<span class="fim-tag">FIM 11/05</span></div>
+      <div class="horarios">
+        <span class="horario-pill" style="border-color:var(--blue);color:var(--blue)">🌙 20h00</span>
+        <span class="horario-pill" style="border-color:var(--blue);color:var(--blue)">☀️ 08h00</span>
+      </div>
+      <table class="check-table">
+        <tr><th>Dia</th><th>20h 🌙</th><th>08h ☀️</th></tr>
+        <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Sex 08/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Sáb 09/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Dom 10/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Seg 11/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+      </table>
+      <div class="legend">✅ 1ª dose dada. Próxima: amanhã 08h00</div>
+    </div>
+
+    <!-- col 2: Ibuprofeno -->
+    <div class="med-card orange">
+      <div class="med-name">🟠 Ibuprofeno 100mg/ml</div>
+      <div class="med-info"><strong>21 gotas</strong> · 8/8h · 3 dias &nbsp;<span class="fim-tag">FIM 07/05</span></div>
+      <div class="horarios">
+        <span class="horario-pill" style="border-color:var(--orange);color:var(--orange)">🌅 08h00</span>
+        <span class="horario-pill" style="border-color:var(--orange);color:var(--orange)">🌆 16h00</span>
+        <span class="horario-pill" style="border-color:var(--orange);color:var(--orange)">🌙 00h00</span>
+      </div>
+      <table class="check-table">
+        <tr><th>Dia</th><th>08h 🌅</th><th>16h 🌆</th><th>00h 🌙</th></tr>
+        <tr><td class="day-label">Seg 04/05</td><td>—</td><td>—</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qui 07/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td>—</td><td>—</td></tr>
+      </table>
+      <div class="legend">✅ 1ª dose: 04/05 às 20h. Sequência: 08h → 16h → 00h</div>
+    </div>
+
+    <!-- col 3: Dipirona -->
+    <div class="med-card green">
+      <div class="med-name">🟢 Dipirona gotas</div>
+      <div class="med-info"><strong>21 gotas</strong> (ou <strong>10ml xarope</strong>) · 6/6h · só se dor/febre</div>
+      <div class="dip-warn">⚠️ Só dar com febre &gt; 37,8°C ou dor.<br>Máx. a cada 6 horas.</div>
+      <table class="check-table">
+        <tr><th>Dose</th><th>Horário</th><th>Motivo</th></tr>
+        <tr><td style="background:#fafafa">1</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
+        <tr><td style="background:#fafafa">2</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
+        <tr><td style="background:#fafafa">3</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
+        <tr><td style="background:#fafafa">4</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
+        <tr><td style="background:#fafafa">5</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
+        <tr><td style="background:#fafafa">6</td><td style="color:#aaa">__:__</td><td style="font-size:0.6rem;color:#aaa">□ Dor &nbsp;□ Febre</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════ EMANUELA ══════════ -->
+<div class="print-page emanuela-page">
+  <div class="page-header">
+    <div class="avatar">🦋</div>
+    <div>
+      <div class="patient-name">Emanuela</div>
+      <div class="patient-sub">Início: 20h20 · 04/05/2026 · Dra. Isabella Silvestre CRM-GO 35785</div>
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+    </div>
+  </div>
+
+  <div class="meds-grid">
+
+    <!-- col 1: Amoxicilina -->
+    <div class="med-card pink">
+      <div class="med-name">🩷 Amoxicilina 400mg/5ml</div>
+      <div class="med-info"><strong>9ml</strong> (ou <strong>14,5ml</strong> c/ 250mg/5ml) · 12/12h · 7 dias &nbsp;<span class="fim-tag">FIM 11/05</span></div>
+      <div class="horarios">
+        <span class="horario-pill" style="border-color:var(--pink);color:var(--pink)">🌙 20h20</span>
+        <span class="horario-pill" style="border-color:var(--pink);color:var(--pink)">☀️ 08h20</span>
+      </div>
+      <table class="check-table">
+        <tr><th>Dia</th><th>20h 🌙</th><th>08h ☀️</th></tr>
+        <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+        <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Sex 08/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Sáb 09/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Dom 10/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        <tr><td class="day-label">Seg 11/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+      </table>
+      <div class="legend">✅ 1ª dose dada. Próxima: amanhã 08h20</div>
+    </div>
+
+    <!-- col 2: Ibuprofeno + Desloratadina empilhados -->
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="med-card orange">
+        <div class="med-name">🟠 Ibuprofeno 100mg/ml</div>
+        <div class="med-info"><strong>21 gotas</strong> · 8/8h · 3 dias &nbsp;<span class="fim-tag">FIM 07/05</span></div>
+        <div class="horarios">
+          <span class="horario-pill" style="border-color:var(--orange);color:var(--orange)">🌅 08h20</span>
+          <span class="horario-pill" style="border-color:var(--orange);color:var(--orange)">🌆 16h20</span>
+          <span class="horario-pill" style="border-color:var(--orange);color:var(--orange)">🌙 00h20</span>
+        </div>
+        <table class="check-table">
+          <tr><th>Dia</th><th>08h 🌅</th><th>16h 🌆</th><th>00h 🌙</th></tr>
+          <tr><td class="day-label">Seg 04/05</td><td>—</td><td>—</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qui 07/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td>—</td><td>—</td></tr>
+        </table>
+      </div>
+
+      <div class="med-card purple">
+        <div class="med-name">🟣 Desloratadina 0,5mg/ml</div>
+        <div class="med-info"><strong>2,5ml</strong> · 1x/dia · 5 dias &nbsp;<span class="fim-tag">FIM 09/05</span></div>
+        <div class="horarios">
+          <span class="horario-pill" style="border-color:var(--purple);color:var(--purple)">🌙 20h20 (sempre)</span>
+        </div>
+        <table class="check-table">
+          <tr><th>Dia</th><th>20h20 🌙</th></tr>
+          <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qui 07/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Sex 08/05 🏁</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- col 3: Mometasona + Lembretes empilhados -->
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="med-card blue">
+        <div class="med-name">🔵 Mometasona Spray Nasal</div>
+        <div class="med-info"><strong>1 jato</strong> cada narina · 12/12h · 3 dias &nbsp;<span class="fim-tag">FIM 07/05</span></div>
+        <div class="horarios">
+          <span class="horario-pill" style="border-color:var(--blue);color:var(--blue)">🌙 20h20</span>
+          <span class="horario-pill" style="border-color:var(--blue);color:var(--blue)">☀️ 08h20</span>
+        </div>
+        <table class="check-table">
+          <tr><th>Dia</th><th>20h 🌙</th><th>08h ☀️</th></tr>
+          <tr><td class="day-label">Seg 04/05</td><td><div class="check-box checked" onclick="toggle(this)">✓</div></td><td>—</td></tr>
+          <tr><td class="day-label">Ter 05/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qua 06/05</td><td><div class="check-box" onclick="toggle(this)">✓</div></td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+          <tr><td class="day-label">Qui 07/05 🏁</td><td>—</td><td><div class="check-box" onclick="toggle(this)">✓</div></td></tr>
+        </table>
+      </div>
+
+      <div class="obs-box">
+        <h4>📝 Lembretes</h4>
+        <ul>
+          <li>💧 Água após cada remédio</li>
+          <li>🍽️ Amoxicilina: c/ ou s/ comida</li>
+          <li>🌡️ Dipirona só se dor/febre</li>
+          <li>🩺 Febre 48h → retornar ao médico</li>
+          <li>✅ Marcados = dose dada em 04/05</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function toggle(el) { el.classList.toggle('checked'); }
+</script>
+</body>
+</html>
